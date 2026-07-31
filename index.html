@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Reference Bot</title>
+    <script src="manifest.js"></script>
+    <style>
+        /* === Reset === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: "Courier New", Courier, monospace;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* === Minimal Header === */
+        header {
+            text-align: center;
+            padding: 22px 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        header h1 {
+            color: #fff;
+            font-size: 22px;
+            font-weight: 700;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
+
+        /* === Container offset for fixed header === */
+        .container {
+            width: 100%;
+            padding-top: 85px;
+        }
+
+        /* === Section (movie block) === */
+        .season-block {
+            margin-bottom: 50px;
+            cursor: pointer;
+            content-visibility: auto;
+            contain-intrinsic-size: auto 14vh;
+        }
+
+        .season-block:hover .season-title {
+            opacity: 0.5;
+        }
+
+        /* === Placeholder (before lazy build) === */
+        .season-placeholder {
+            min-height: 14vh;
+            display: flex;
+            align-items: flex-end;
+            padding: 0 40px 15px;
+            opacity: 0.35;
+            transition: opacity 0.3s ease;
+        }
+
+        .season-placeholder .placeholder-text {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+            color: #888;
+        }
+
+        /* === Title === */
+        .season-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            padding: 0 40px 15px;
+            letter-spacing: 2px;
+            font-weight: bold;
+            transition: opacity 0.2s ease;
+        }
+
+        /* === Marquee scroll strip === */
+        .scroll-wrapper {
+            width: 100%;
+            height: 10vh;
+            min-height: 60px;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scroll-content {
+            display: flex;
+            height: 100%;
+            white-space: nowrap;
+            animation: marquee 45s linear infinite;
+            will-change: transform;
+        }
+
+        .scroll-wrapper:hover .scroll-content {
+            animation-play-state: paused;
+        }
+
+        .image-item {
+            height: 100%;
+            width: auto;
+            margin-right: 0;
+            display: block;
+            cursor: pointer;
+        }
+
+        @keyframes marquee {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* === Empty state === */
+        .empty-state {
+            text-align: center;
+            padding: 80px 40px;
+            color: #666;
+            font-size: 14px;
+            letter-spacing: 1px;
+            line-height: 1.8;
+        }
+
+        .empty-state code {
+            color: #999;
+            background: rgba(255,255,255,0.06);
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+
+        /* === Search bar === */
+        .search-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+            padding: 20px 20px 0;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 0;
+            color: #fff;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s ease, background 0.2s ease;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .search-input:focus {
+            border-color: rgba(255, 255, 255, 0.35);
+            background: transparent;
+        }
+
+        .search-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 20px;
+            right: 20px;
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-top: none;
+            border-radius: 0;
+            max-height: 260px;
+            overflow-y: auto;
+            display: none;
+            z-index: 500;
+        }
+
+        .search-dropdown.active {
+            display: block;
+        }
+
+        .search-dropdown-item {
+            padding: 10px 16px;
+            font-size: 13px;
+            color: #ccc;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .search-dropdown-item:hover,
+        .search-dropdown-item.highlight {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+        }
+
+        .search-dropdown-item mark {
+            background: transparent;
+            color: #00FFFF;
+            font-weight: bold;
+        }
+
+        /* === Responsive === */
+        @media (max-width: 768px) {
+            header {
+                padding: 16px 0;
+            }
+            header h1 {
+                font-size: 16px;
+                letter-spacing: 3px;
+            }
+            .container {
+                padding-top: 62px;
+            }
+            .search-wrap {
+                max-width: 260px;
+                padding: 14px 16px 0;
+            }
+            .search-input {
+                font-size: 16px;       /* >=16px prevents iOS auto-zoom on focus */
+                padding: 9px 12px;
+            }
+            .search-dropdown {
+                left: 16px;
+                right: 16px;
+                max-height: 220px;
+            }
+            .search-dropdown-item {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+            .season-title {
+                padding: 0 20px 10px;
+                font-size: 12px;
+            }
+            .season-placeholder {
+                padding: 0 20px 10px;
+            }
+            .season-block {
+                margin-bottom: 35px;
+            }
+            .scroll-wrapper {
+                height: 9vh;
+                min-height: 50px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .search-wrap {
+                max-width: 220px;
+                padding: 10px 12px 0;
+            }
+            .search-input {
+                font-size: 16px;
+                padding: 8px 10px;
+            }
+            .search-dropdown {
+                left: 12px;
+                right: 12px;
+                max-height: 180px;
+            }
+            .search-dropdown-item {
+                padding: 9px 12px;
+                font-size: 12px;
+            }
+            .season-title {
+                padding: 0 12px 8px;
+                font-size: 11px;
+            }
+            .season-placeholder {
+                padding: 0 12px 8px;
+            }
+            .scroll-wrapper {
+                height: 8vh;
+                min-height: 44px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>The Reference Bot</h1>
+    </header>
+
+    <div class="container" id="project-container">
+
+        <div class="search-wrap">
+            <input class="search-input" id="search-input" type="text" placeholder="Search films..." autocomplete="off">
+            <div class="search-dropdown" id="search-dropdown"></div>
+        </div>
+
+        <div id="sections-wrap"></div>
+    </div>
+
+    <script>
+        (function() {
+            const container = document.getElementById('project-container');
+            const sectionsWrap = document.getElementById('sections-wrap');
+            const searchInput = document.getElementById('search-input');
+            const searchDropdown = document.getElementById('search-dropdown');
+            const manifest = window.__MANIFEST__;
+
+            // Validate
+            if (!manifest || !manifest.projects || Object.keys(manifest.projects).length === 0) {
+                sectionsWrap.innerHTML = `
+                    <div class="empty-state">
+                        No films yet.<br><br>
+                        Add subfolders to <code>reference/film/</code> and<br>
+                        list them in <code>manifest.js</code> under <code>window.__MANIFEST__</code>.
+                    </div>`;
+                return;
+            }
+
+            const projects = manifest.projects;
+            const names = Object.keys(projects);
+
+            // Map: project name → current DOM element (placeholder or built section)
+            const elMap = {};
+
+            // =========================================================
+            //  1. CREATE LIGHTWEIGHT PLACEHOLDERS (no images yet)
+            // =========================================================
+            const fragment = document.createDocumentFragment();
+            const placeholders = [];
+
+            names.forEach(name => {
+                const placeholder = document.createElement('section');
+                placeholder.className = 'season-placeholder';
+                placeholder.dataset.project = name;
+                placeholder.innerHTML = `<span class="placeholder-text">${escapeHTML(name)}</span>`;
+                fragment.appendChild(placeholder);
+                placeholders.push(placeholder);
+                elMap[name] = placeholder;
+            });
+
+            sectionsWrap.appendChild(fragment);
+
+            // =========================================================
+            //  2. INTERSECTION OBSERVER — lazy-build sections
+            // =========================================================
+            const buildObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const placeholder = entry.target;
+                        const projectName = placeholder.dataset.project;
+                        if (!projectName) return;
+                        const data = projects[projectName];
+                        if (!data) return;
+
+                        buildSection(placeholder, projectName, data);
+                        buildObserver.unobserve(placeholder);
+                    }
+                });
+            }, {
+                rootMargin: '500px'
+            });
+
+            placeholders.forEach(p => buildObserver.observe(p));
+
+            // =========================================================
+            //  3. INTERSECTION OBSERVER — pause marquee when hidden
+            // =========================================================
+            const pauseObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const content = entry.target.querySelector('.scroll-content');
+                    if (!content) return;
+                    content.style.animationPlayState = entry.isIntersecting ? 'running' : 'paused';
+                });
+            });
+
+            // =========================================================
+            //  4. BUILD A FULL SECTION (replaces placeholder)
+            // =========================================================
+            function buildSection(placeholder, projectName, data) {
+                const images = data.images || [];
+                if (images.length === 0) {
+                    placeholder.remove();
+                    return;
+                }
+
+                const encoded = encodeURIComponent(projectName);
+                const basePath = 'reference/film/' + encoded + '/';
+
+                const section = document.createElement('section');
+                section.className = 'season-block';
+                // Click anywhere on the section → navigate (images have stopPropagation)
+                section.onclick = () => {
+                    location.href = 'project_detail.html?project=' + encoded;
+                };
+
+                // Title
+                const title = document.createElement('div');
+                title.className = 'season-title';
+                title.textContent = projectName;
+                section.appendChild(title);
+
+                // Scroll wrapper
+                const wrapper = document.createElement('div');
+                wrapper.className = 'scroll-wrapper';
+
+                const content = document.createElement('div');
+                content.className = 'scroll-content';
+
+                // Duplicate images for seamless infinite scroll
+                // Each image click carries the original index (before duplication)
+                const total = images.length;
+                const allImages = [...images, ...images];
+                allImages.forEach((file, i) => {
+                    const img = document.createElement('img');
+                    img.className = 'image-item';
+                    img.src = basePath + encodeURIComponent(file);
+                    img.alt = file;
+                    img.loading = 'lazy';
+                    img.decoding = 'async';
+                    const origIndex = i % total;
+                    img.onclick = (e) => {
+                        e.stopPropagation();
+                        location.href = 'project_detail.html?project=' + encoded + '&img=' + origIndex;
+                    };
+                    content.appendChild(img);
+                });
+
+                wrapper.appendChild(content);
+                section.appendChild(wrapper);
+
+                // Replace placeholder with real section
+                placeholder.replaceWith(section);
+                elMap[projectName] = section;
+
+                // Observe for pause/resume
+                pauseObserver.observe(section);
+            }
+
+            // =========================================================
+            //  5. SEARCH LOGIC
+            // =========================================================
+            let highlightedIdx = -1;
+
+            searchInput.addEventListener('input', function() {
+                const query = this.value.trim().toLowerCase();
+                highlightedIdx = -1;
+                searchDropdown.innerHTML = '';
+
+                if (query.length === 0) {
+                    searchDropdown.classList.remove('active');
+                    return;
+                }
+
+                const matches = names.filter(n => n.toLowerCase().includes(query));
+                if (matches.length === 0) {
+                    searchDropdown.classList.remove('active');
+                    return;
+                }
+
+                matches.forEach(name => {
+                    const item = document.createElement('div');
+                    item.className = 'search-dropdown-item';
+                    // Highlight matching portion
+                    const idx = name.toLowerCase().indexOf(query);
+                    item.innerHTML =
+                        escapeHTML(name.slice(0, idx)) +
+                        '<mark>' + escapeHTML(name.slice(idx, idx + query.length)) + '</mark>' +
+                        escapeHTML(name.slice(idx + query.length));
+                    item.addEventListener('mousedown', function(e) {
+                        e.preventDefault();
+                        scrollToProject(name);
+                    });
+                    searchDropdown.appendChild(item);
+                });
+
+                searchDropdown.classList.add('active');
+            });
+
+            // Keyboard navigation
+            searchInput.addEventListener('keydown', function(e) {
+                const items = searchDropdown.querySelectorAll('.search-dropdown-item');
+                if (items.length === 0) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    highlightedIdx = Math.min(highlightedIdx + 1, items.length - 1);
+                    updateHighlight(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    highlightedIdx = Math.max(highlightedIdx - 1, 0);
+                    updateHighlight(items);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (highlightedIdx >= 0 && items[highlightedIdx]) {
+                        items[highlightedIdx].click();
+                    } else if (items.length === 1) {
+                        items[0].click();
+                    }
+                } else if (e.key === 'Escape') {
+                    searchDropdown.classList.remove('active');
+                    searchInput.blur();
+                }
+            });
+
+            function updateHighlight(items) {
+                items.forEach((item, i) => {
+                    item.classList.toggle('highlight', i === highlightedIdx);
+                });
+            }
+
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
+                    searchDropdown.classList.remove('active');
+                }
+            });
+
+            // Scroll to a project — force-build if still a placeholder
+            function scrollToProject(name) {
+                searchDropdown.classList.remove('active');
+                searchInput.value = name;
+                searchInput.blur();
+
+                let el = elMap[name];
+                if (!el) return;
+
+                // If still a placeholder, force-build it
+                if (el.classList.contains('season-placeholder')) {
+                    const data = projects[name];
+                    if (!data) return;
+                    buildObserver.unobserve(el);
+                    buildSection(el, name, data);
+                    el = elMap[name];
+                    if (!el) return;
+                }
+
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            // =========================================================
+            //  UTILITY
+            // =========================================================
+            function escapeHTML(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+        })();
+    </script>
+</body>
+</html>

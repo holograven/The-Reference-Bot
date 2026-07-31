@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Film Detail — The Reference Bot</title>
+    <script src="manifest.js"></script>
+    <style>
+        /* === Reset === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Courier New", Courier, monospace;
+            background-color: #000;
+            color: #fff;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* === Minimal Header === */
+        header {
+            text-align: center;
+            padding: 22px 0;
+            position: sticky;
+            top: 0;
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            z-index: 100;
+        }
+
+        header h1 {
+            color: #fff;
+            font-size: 22px;
+            font-weight: 700;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
+
+        /* === Floating back button === */
+        .back-float {
+            position: fixed;
+            left: 30px;
+            bottom: 30px;
+            z-index: 200;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+        }
+
+        .back-float::before {
+            content: '';
+            display: block;
+            width: 10px;
+            height: 10px;
+            border-left: 2px solid #fff;
+            border-bottom: 2px solid #fff;
+            transform: rotate(45deg) translateX(2px);
+            opacity: 0.7;
+            transition: opacity 0.25s ease;
+        }
+
+        .back-float:hover {
+            background: rgba(255, 255, 255, 0.14);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: scale(1.08);
+        }
+
+        .back-float:hover::before {
+            opacity: 1;
+        }
+
+        /* === Project title / last-edit label === */
+        .project-title {
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 18px 50px 12px;
+            opacity: 0.5;
+        }
+
+        /* === Image stack === */
+        .project-images {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px 50px 60px;
+        }
+
+        .project-images img {
+            width: 100%;
+            height: auto;
+            display: block;
+            margin-bottom: 20px;
+            background: #111;
+            scroll-margin-top: 80px;
+        }
+
+        /* === Description block === */
+        .project-description {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 50px 100px;
+            border-top: 1px solid #333;
+        }
+
+        .project-description,
+        .project-description * {
+            color: #fff !important;
+        }
+
+        /* === Error / loading states === */
+        .status-message {
+            text-align: center;
+            padding: 80px 40px;
+            color: #666;
+            font-size: 14px;
+            letter-spacing: 1px;
+            line-height: 1.8;
+        }
+
+        /* === Responsive === */
+        @media (max-width: 768px) {
+            header {
+                padding: 16px 0;
+            }
+            header h1 {
+                font-size: 16px;
+                letter-spacing: 3px;
+            }
+            .back-float {
+                left: 16px;
+                bottom: 16px;
+                width: 38px;
+                height: 38px;
+            }
+            .back-float::before {
+                width: 8px;
+                height: 8px;
+            }
+            .project-title {
+                padding: 30px 20px 15px;
+                font-size: 11px;
+            }
+            .project-images {
+                padding: 10px 20px 40px;
+            }
+            .project-images img {
+                margin-bottom: 12px;
+            }
+            .project-description {
+                padding: 20px 20px 60px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 14px 0;
+            }
+            header h1 {
+                font-size: 14px;
+                letter-spacing: 2px;
+            }
+            .back-float {
+                left: 12px;
+                bottom: 12px;
+                width: 34px;
+                height: 34px;
+            }
+            .project-title {
+                padding: 24px 14px 12px;
+                font-size: 10px;
+                letter-spacing: 2px;
+            }
+            .project-images {
+                padding: 6px 10px 30px;
+            }
+            .project-images img {
+                margin-bottom: 8px;
+            }
+            .project-description {
+                padding: 16px 14px 50px;
+            }
+            .status-message {
+                padding: 50px 20px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>The Reference Bot</h1>
+    </header>
+
+    <a class="back-float" href="index.html" title="Back"></a>
+
+    <div class="project-title" id="project-title">—</div>
+
+    <div class="project-images" id="project-images"></div>
+
+    <div class="project-description" id="project-description"></div>
+
+    <script>
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            const projectName = params.get('project');
+
+            if (!projectName) {
+                document.getElementById('project-title').textContent = 'No project specified';
+                document.getElementById('project-images').innerHTML =
+                    '<div class="status-message">Use <code>?project=MOVIE_NAME</code> in the URL.</div>';
+                return;
+            }
+
+            const manifest = window.__MANIFEST__;
+
+            if (!manifest || !manifest.projects) {
+                showError('Unable to load manifest.js — check the file exists.');
+                return;
+            }
+
+            const project = manifest.projects[projectName];
+            if (!project) {
+                showError('Project "' + escapeHTML(projectName) + '" not found in manifest.js');
+                return;
+            }
+
+            const encoded = encodeURIComponent(projectName);
+            const folderUrl = 'reference/film/' + encoded + '/';
+            const images = project.images || [];
+            const hasDescription = project.hasDescription || false;
+            const targetImg = parseInt(params.get('img'), 10);
+
+            // Header → project name
+            document.querySelector('header h1').textContent = projectName.toUpperCase();
+            document.title = projectName + ' — The Reference Bot';
+
+            // Top-left → last-edit time from manifest
+            const titleEl = document.getElementById('project-title');
+            titleEl.textContent = project.lastEdit ? 'Last edit: ' + project.lastEdit : 'Last edit: —';
+
+            // Render images with lazy loading
+            const imgContainer = document.getElementById('project-images');
+            const fragment = document.createDocumentFragment();
+            let targetEl = null;
+            images.forEach((file, i) => {
+                const img = document.createElement('img');
+                img.id = 'img-' + i;
+                img.src = folderUrl + encodeURIComponent(file);
+                img.alt = file;
+                img.decoding = 'async';
+                // Target image: load eagerly so it has dimensions for scroll
+                if (i === targetImg) {
+                    img.loading = 'eager';
+                    targetEl = img;
+                } else {
+                    img.loading = 'lazy';
+                }
+                fragment.appendChild(img);
+            });
+            imgContainer.appendChild(fragment);
+
+            // Scroll to target image if specified
+            if (targetEl) {
+                const doScroll = () => {
+                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                };
+                if (targetEl.complete && targetEl.naturalHeight > 0) {
+                    doScroll();
+                } else {
+                    targetEl.onload = doScroll;
+                    // Fallback: if image fails or is cached and onload already fired
+                    setTimeout(() => {
+                        if (targetEl.naturalHeight > 0 || targetEl.complete) doScroll();
+                    }, 300);
+                }
+            }
+
+            // Load Description.txt if present
+            if (hasDescription) {
+                fetch(folderUrl + 'Description.txt')
+                    .then(res => {
+                        if (!res.ok) throw new Error('not found');
+                        return res.text();
+                    })
+                    .then(txtHtml => {
+                        const parser = new DOMParser();
+                        const txtDoc = parser.parseFromString(txtHtml, 'text/html');
+
+                        // Inject <style> blocks into <head>
+                        txtDoc.querySelectorAll('style').forEach(styleEl => {
+                            const s = document.createElement('style');
+                            s.textContent = styleEl.textContent;
+                            document.head.appendChild(s);
+                        });
+
+                        document.getElementById('project-description').innerHTML = txtDoc.body.innerHTML;
+                    })
+                    .catch(() => {
+                        document.getElementById('project-description').innerHTML = '';
+                    });
+            } else {
+                document.getElementById('project-description').innerHTML = '';
+            }
+
+            function showError(msg) {
+                document.getElementById('project-title').textContent = 'Error';
+                document.getElementById('project-images').innerHTML =
+                    '<div class="status-message">' + escapeHTML(msg) + '</div>';
+            }
+
+            function escapeHTML(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+        })();
+    </script>
+</body>
+</html>
