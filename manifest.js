@@ -8,6 +8,10 @@ window.__MANIFEST__ = {
   "projects": {
     "Mirror": {
       "images": [
+        "1.jpg",
+        "2.jpg",
+        "3.jpg",
+        "4.jpg",
         "mirror.jpg",
         "mirror(1).jpg",
         "mirror(2).jpg",
@@ -20,10 +24,30 @@ window.__MANIFEST__ = {
         "mirror(9).jpg",
         "mirror(10).jpg",
         "mirror(11).jpg",
-        "mirror(12).jpg"
+        "mirror(12).jpg",
+        "mirror(13).jpg",
+        "mirror(14).jpg",
+        "mirror(15).jpg",
+        "mirror(16).jpg"
       ],
       "hasDescription": false,
-      "lastEdit": "2026/08/01"
+      "lastEdit": "2026/08/04"
+    },
+    "Jeune & jolie": {
+      "images": [
+        "mirror.jpg",
+        "mirror(1).jpg",
+        "mirror(2).jpg",
+        "mirror(3).jpg",
+        "mirror(4).jpg",
+        "mirror(5).jpg",
+        "mirror(6).jpg",
+        "mirror(7).jpg",
+        "mirror(8).jpg",
+        "mirror(9).jpg"
+      ],
+      "hasDescription": false,
+      "lastEdit": "2026/08/04"
     }
   }
 };
