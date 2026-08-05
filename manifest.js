@@ -49,7 +49,7 @@ window.__MANIFEST__ = {
       "hasDescription": false,
       "lastEdit": "2026/08/04"
     },
-    "The Blue Light 青之炎": {
+    "The Blue Light éä¹ç": {
       "images": [
         "blue.jpg",
         "blue(1).jpg",
@@ -94,6 +94,14 @@ window.__MANIFEST__ = {
         "bluelight(25).jpg",
         "bluelight(26).jpg",
         "bluelight(27).jpg"
+      ],
+      "hasDescription": false,
+      "lastEdit": "2026/08/05"
+    },
+    "Ran 乱": {
+      "images": [
+        "IMG_1447.png",
+        "IMG_1448.png"
       ],
       "hasDescription": false,
       "lastEdit": "2026/08/05"
