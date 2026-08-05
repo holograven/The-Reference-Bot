@@ -97,5 +97,6 @@ window.__MANIFEST__ = {
       ],
       "hasDescription": false,
       "lastEdit": "2026/08/05"
+    }
   }
 };
