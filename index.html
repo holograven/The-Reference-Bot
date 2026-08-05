@@ -544,7 +544,7 @@
                 }
 
                 const encoded = encodeURIComponent(projectName);
-                const basePath = 'reference/film/' + encoded + '/';
+                const basePath = 'reference/thumbs/' + encoded + '/';
 
                 const section = document.createElement('section');
                 section.className = 'season-block';
@@ -573,7 +573,7 @@
                 allImages.forEach((file, i) => {
                     const img = document.createElement('img');
                     img.className = 'image-item';
-                    img.src = basePath + encodeURIComponent(file);
+                    img.src = basePath + encodeURIComponent(file).replace(/\.(jpe?g|png)$/i, '.webp');
                     img.alt = file;
                     img.loading = 'lazy';
                     img.decoding = 'async';
