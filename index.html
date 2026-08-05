@@ -44,6 +44,25 @@
             text-transform: uppercase;
         }
 
+        /* Admin + button */
+        .admin-plus {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.18);
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 300;
+            line-height: 1;
+            padding: 4px 8px;
+            transition: color 0.3s ease, opacity 0.3s ease;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+        .admin-plus:hover {
+            color: rgba(255,255,255,0.6);
+        }
+
         /* === Container offset for fixed header === */
         .container {
             width: 100%;
@@ -224,6 +243,11 @@
                 font-size: 16px;
                 letter-spacing: 3px;
             }
+            .admin-plus {
+                right: 10px;
+                font-size: 16px;
+                padding: 2px 6px;
+            }
             .container {
                 padding-top: 62px;
             }
@@ -296,6 +320,7 @@
 
     <header>
         <h1>The Reference Bot</h1>
+        <a href="admin.html" class="admin-plus" title="Admin">+</a>
     </header>
 
     <div class="container" id="project-container">

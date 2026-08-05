@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Admin — The Reference Bot</title>
+    <script src="manifest.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background:#000; color:#fff;
+            font-family: "Courier New", Courier, monospace;
+            min-height:100vh; -webkit-font-smoothing:antialiased;
+        }
+
+        /* === Screens === */
+        .screen { display:none; min-height:100vh; }
+        .screen.active { display:flex; flex-direction:column; }
+
+        /* === Header === */
+        header {
+            text-align:center; padding:18px 0;
+            background:rgba(0,0,0,0.88);
+            backdrop-filter:blur(12px);
+            -webkit-backdrop-filter:blur(12px);
+            border-bottom:1px solid rgba(255,255,255,0.08);
+            position:sticky; top:0; z-index:100;
+        }
+        header h1 {
+            font-size:16px; font-weight:700; letter-spacing:3px;
+            font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+            text-transform:uppercase;
+        }
+
+        /* === Content area === */
+        .content {
+            flex:1; padding:24px 20px; max-width:500px; width:100%; margin:0 auto;
+        }
+
+        /* === Form elements === */
+        label {
+            display:block; font-size:11px; text-transform:uppercase;
+            letter-spacing:2px; color:#888; margin-bottom:8px; margin-top:20px;
+        }
+        label:first-child { margin-top:0; }
+
+        input, select, textarea {
+            width:100%; padding:12px 14px; font-size:16px;
+            background:transparent; border:1px solid rgba(255,255,255,0.12);
+            color:#fff; font-family:inherit; outline:none;
+            border-radius:0; -webkit-appearance:none;
+            transition:border-color 0.2s;
+        }
+        input:focus, select:focus { border-color:rgba(255,255,255,0.35); }
+        select { cursor:pointer; }
+        select option { background:#1a1a1a; color:#fff; }
+
+        button {
+            display:block; width:100%; padding:14px; margin-top:24px;
+            font-size:14px; font-weight:700; letter-spacing:3px;
+            text-transform:uppercase; cursor:pointer;
+            background:transparent; color:#fff;
+            border:1px solid rgba(255,255,255,0.2);
+            font-family:inherit; transition:all 0.25s;
+        }
+        button:hover { background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.4); }
+        button:disabled { opacity:0.3; cursor:not-allowed; }
+        button.danger { border-color:rgba(255,80,80,0.3); color:#ff5555; }
+        button.danger:hover { background:rgba(255,80,80,0.1); }
+        button.small { padding:10px; font-size:11px; letter-spacing:2px; margin-top:8px; }
+
+        /* === Image preview === */
+        .preview-grid {
+            display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:16px;
+        }
+        .preview-item {
+            position:relative; aspect-ratio:1; overflow:hidden;
+            background:#111; border:1px solid rgba(255,255,255,0.06);
+        }
+        .preview-item img {
+            width:100%; height:100%; object-fit:cover; display:block;
+        }
+        .preview-item .remove {
+            position:absolute; top:4px; right:4px;
+            width:24px; height:24px; border-radius:50%;
+            background:rgba(0,0,0,0.7); color:#ff5555;
+            display:flex; align-items:center; justify-content:center;
+            font-size:14px; cursor:pointer; border:none;
+            line-height:1;
+        }
+
+        /* === Film selector + new input === */
+        .film-row { display:flex; gap:8px; }
+        .film-row select { flex:1; }
+        .new-film-input { display:none; margin-top:12px; }
+
+        /* === Progress === */
+        .progress-wrap { margin-top:16px; display:none; }
+        .progress-bar {
+            width:100%; height:4px; background:rgba(255,255,255,0.08);
+            border-radius:0; overflow:hidden;
+        }
+        .progress-bar .fill {
+            height:100%; background:#fff;
+            transition:width 0.3s ease; width:0%;
+        }
+        .progress-text {
+            font-size:11px; color:#888; margin-top:6px; letter-spacing:1px;
+        }
+        .upload-log {
+            margin-top:12px; max-height:160px; overflow-y:auto;
+            font-size:11px; color:#666; line-height:1.8;
+        }
+        .upload-log .ok { color:#4f4; }
+        .upload-log .err { color:#f44; }
+
+        /* === Messages === */
+        .msg {
+            padding:12px 16px; margin-top:12px; font-size:12px;
+            border-left:2px solid; letter-spacing:1px; display:none;
+        }
+        .msg.error { color:#ff5555; border-color:#ff5555; background:rgba(255,80,80,0.06); display:block; }
+        .msg.success { color:#4f4; border-color:#4f4; background:rgba(80,255,80,0.06); display:block; }
+
+        /* === Token info === */
+        .info-box {
+            padding:12px 14px; margin-top:16px; font-size:11px; color:#888;
+            border:1px solid rgba(255,255,255,0.08); line-height:1.8;
+            letter-spacing:0.5px;
+        }
+        .info-box a { color:#aaa; }
+
+        /* === Back link === */
+        .back-link {
+            display:inline-block; margin-top:20px; font-size:11px;
+            color:#555; text-decoration:none; letter-spacing:2px;
+            text-transform:uppercase;
+        }
+        .back-link:hover { color:#aaa; }
+
+        /* === Responsive === */
+        @media (max-width:480px) {
+            .content { padding:16px 14px; }
+            header { padding:14px 0; }
+            header h1 { font-size:14px; letter-spacing:2px; }
+            .preview-grid { grid-template-columns:repeat(3,1fr); gap:6px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ================================================================ -->
+<!--  SCREEN: LOGIN                                                      -->
+<!-- ================================================================ -->
+<div class="screen active" id="screen-login">
+    <header><h1>Admin</h1></header>
+    <div class="content">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="Enter admin password" autocomplete="off">
+        <div class="msg" id="login-msg"></div>
+        <button id="login-btn">Unlock</button>
+    </div>
+</div>
+
+<!-- ================================================================ -->
+<!--  SCREEN: TOKEN SETUP (first time)                                   -->
+<!-- ================================================================ -->
+<div class="screen" id="screen-token">
+    <header><h1>Admin</h1></header>
+    <div class="content">
+        <label>GitHub Personal Access Token</label>
+        <input type="password" id="token-input" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off">
+        <div class="info-box">
+            Need a token? Create one at<br>
+            <a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a><br>
+            Scope: <b>repo</b> (full control of private repositories)
+        </div>
+        <div class="msg" id="token-msg"></div>
+        <button id="token-save-btn">Save Token</button>
+        <button class="small danger" id="token-skip-btn">Skip (enter later)</button>
+    </div>
+</div>
+
+<!-- ================================================================ -->
+<!--  SCREEN: MAIN UPLOAD INTERFACE                                      -->
+<!-- ================================================================ -->
+<div class="screen" id="screen-main">
+    <header><h1>Admin</h1></header>
+    <div class="content">
+
+        <!-- Film selection -->
+        <label>Film</label>
+        <div class="film-row">
+            <select id="film-select">
+                <option value="__new__">➕ New Film...</option>
+            </select>
+        </div>
+        <input class="new-film-input" id="new-film-name" type="text" placeholder="Enter new film name...">
+
+        <!-- Image upload -->
+        <label style="margin-top:20px;">Images</label>
+        <input type="file" id="image-input" accept="image/*" multiple style="display:none;">
+        <button class="small" id="pick-images-btn">📷 Select Images</button>
+        <div class="preview-grid" id="preview-grid"></div>
+
+        <div class="progress-wrap" id="progress-wrap">
+            <div class="progress-bar"><div class="fill" id="progress-fill"></div></div>
+            <div class="progress-text" id="progress-text"></div>
+            <div class="upload-log" id="upload-log"></div>
+        </div>
+
+        <div class="msg" id="main-msg"></div>
+        <button id="upload-btn" disabled>Upload</button>
+
+        <button class="small danger" id="logout-btn" style="margin-top:40px;">Logout</button>
+        <button class="small" id="change-token-btn">Change GitHub Token</button>
+        <a class="back-link" href="index.html">← Back to site</a>
+    </div>
+</div>
+
+<script>
+(function() {
+    const REPO_OWNER = 'holograven';
+    const REPO_NAME = 'The-Reference-Bot';
+    const API_BASE = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}`;
+    const AUTH_API = '/api/auth';
+
+    // ---- State ----
+    let selectedFiles = [];
+    let authToken = '';       // session token from /api/auth
+    let githubToken = '';     // GitHub PAT from localStorage
+
+    // ---- DOM ----
+    const $ = id => document.getElementById(id);
+    const screenLogin  = $('screen-login');
+    const screenToken  = $('screen-token');
+    const screenMain   = $('screen-main');
+
+    // ---- Init ----
+    init();
+
+    function init() {
+        // Check if already authenticated
+        authToken = localStorage.getItem('admin_auth_token') || '';
+        githubToken = localStorage.getItem('admin_github_token') || '';
+
+        if (authToken && githubToken) {
+            showMain();
+        } else if (authToken) {
+            showTokenSetup();
+        } else {
+            showLogin();
+        }
+
+        // Login
+        $('login-btn').addEventListener('click', doLogin);
+        $('login-password').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
+
+        // Token
+        $('token-save-btn').addEventListener('click', saveToken);
+        $('token-skip-btn').addEventListener('click', () => showMain());
+        $('token-input').addEventListener('keydown', e => { if (e.key==='Enter') saveToken(); });
+
+        // Main
+        $('film-select').addEventListener('change', onFilmSelect);
+        $('pick-images-btn').addEventListener('click', () => $('image-input').click());
+        $('image-input').addEventListener('change', onImagesPicked);
+        $('upload-btn').addEventListener('click', doUpload);
+        $('logout-btn').addEventListener('click', doLogout);
+        $('change-token-btn').addEventListener('click', showTokenSetup);
+
+        // Populate film list
+        populateFilms();
+    }
+
+    // ================================================================
+    //  SCREEN SWITCHING
+    // ================================================================
+    function showScreen(screen) {
+        [screenLogin, screenToken, screenMain].forEach(s => s.classList.remove('active'));
+        screen.classList.add('active');
+    }
+
+    function showLogin() {
+        showScreen(screenLogin);
+        $('login-password').value = '';
+        $('login-msg').textContent = '';
+        $('login-msg').className = 'msg';
+    }
+
+    function showTokenSetup() {
+        showScreen(screenToken);
+        $('token-input').value = githubToken || '';
+        $('token-msg').textContent = '';
+        $('token-msg').className = 'msg';
+    }
+
+    function showMain() {
+        showScreen(screenMain);
+        populateFilms();
+        updateUploadBtn();
+    }
+
+    // ================================================================
+    //  AUTH
+    // ================================================================
+    async function doLogin() {
+        const password = $('login-password').value.trim();
+        if (!password) return showMsg('login-msg', 'Enter password', 'error');
+
+        $('login-btn').disabled = true;
+        try {
+            const res = await fetch(AUTH_API, {
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({ password })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                authToken = data.token;
+                localStorage.setItem('admin_auth_token', authToken);
+                if (githubToken) showMain();
+                else showTokenSetup();
+            } else {
+                showMsg('login-msg', data.error || 'Invalid password', 'error');
+            }
+        } catch(e) {
+            showMsg('login-msg', 'Network error: ' + e.message, 'error');
+        }
+        $('login-btn').disabled = false;
+    }
+
+    function doLogout() {
+        localStorage.removeItem('admin_auth_token');
+        localStorage.removeItem('admin_github_token');
+        authToken = '';
+        githubToken = '';
+        showLogin();
+    }
+
+    function saveToken() {
+        const token = $('token-input').value.trim();
+        if (!token) return showMsg('token-msg', 'Enter a token', 'error');
+        githubToken = token;
+        localStorage.setItem('admin_github_token', githubToken);
+        showMain();
+    }
+
+    // ================================================================
+    //  FILM SELECTION
+    // ================================================================
+    function populateFilms() {
+        const sel = $('film-select');
+        sel.innerHTML = '<option value="__new__">➕ New Film...</option>';
+        const manifest = window.__MANIFEST__;
+        if (manifest && manifest.projects) {
+            Object.keys(manifest.projects).sort().forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                sel.appendChild(opt);
+            });
+        }
+    }
+
+    function onFilmSelect() {
+        const val = $('film-select').value;
+        const newInput = $('new-film-name');
+        const pickBtn = $('pick-images-btn');
+        if (val === '__new__') {
+            newInput.style.display = 'block';
+            newInput.focus();
+            pickBtn.style.display = 'none';
+            clearPreview();
+        } else {
+            newInput.style.display = 'none';
+            pickBtn.style.display = 'block';
+        }
+        updateUploadBtn();
+    }
+
+    function getTargetFilm() {
+        const val = $('film-select').value;
+        if (val === '__new__') {
+            return $('new-film-name').value.trim();
+        }
+        return val;
+    }
+
+    // ================================================================
+    //  IMAGE HANDLING
+    // ================================================================
+    function onImagesPicked() {
+        const input = $('image-input');
+        selectedFiles = Array.from(input.files || []);
+        renderPreview();
+        updateUploadBtn();
+    }
+
+    function renderPreview() {
+        const grid = $('preview-grid');
+        grid.innerHTML = '';
+        selectedFiles.forEach((file, i) => {
+            const item = document.createElement('div');
+            item.className = 'preview-item';
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            const rm = document.createElement('button');
+            rm.className = 'remove';
+            rm.textContent = '×';
+            rm.onclick = (e) => { e.stopPropagation(); removeImage(i); };
+            item.appendChild(img);
+            item.appendChild(rm);
+            grid.appendChild(item);
+        });
+    }
+
+    function removeImage(i) {
+        selectedFiles.splice(i, 1);
+        renderPreview();
+        updateUploadBtn();
+        $('image-input').value = ''; // reset so same file can be re-selected
+    }
+
+    function clearPreview() {
+        selectedFiles = [];
+        $('preview-grid').innerHTML = '';
+        $('image-input').value = '';
+    }
+
+    function updateUploadBtn() {
+        const film = getTargetFilm();
+        $('upload-btn').disabled = !film || selectedFiles.length === 0;
+    }
+
+    // Listen for new film name input
+    $('new-film-name').addEventListener('input', () => {
+        updateUploadBtn();
+        // Show pick button when name is entered
+        const hasName = $('new-film-name').value.trim().length > 0;
+        $('pick-images-btn').style.display = hasName ? 'block' : 'none';
+    });
+
+    // ================================================================
+    //  UPLOAD
+    // ================================================================
+    async function doUpload() {
+        if (!githubToken) {
+            showMsg('main-msg', 'GitHub token not set. Click "Change GitHub Token" below.', 'error');
+            return;
+        }
+
+        const film = getTargetFilm();
+        if (!film) return;
+        if (selectedFiles.length === 0) return;
+
+        $('upload-btn').disabled = true;
+        const progressWrap = $('progress-wrap');
+        const progressFill = $('progress-fill');
+        const progressText = $('progress-text');
+        const uploadLog = $('upload-log');
+        const mainMsg = $('main-msg');
+
+        progressWrap.style.display = 'block';
+        progressFill.style.width = '0%';
+        uploadLog.innerHTML = '';
+        mainMsg.textContent = '';
+        mainMsg.className = 'msg';
+
+        const total = selectedFiles.length;
+        let success = 0;
+        let failed = 0;
+        let isNewFilm = ($('film-select').value === '__new__');
+
+        // Sort files by name for consistent ordering
+        const sorted = [...selectedFiles].sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric:true}));
+
+        for (let i = 0; i < sorted.length; i++) {
+            const file = sorted[i];
+            const pct = Math.round((i / total) * 100);
+            progressFill.style.width = pct + '%';
+            progressText.textContent = `Uploading ${i+1}/${total}: ${file.name}`;
+
+            try {
+                const result = await uploadImage(film, file);
+                if (result.ok) {
+                    success++;
+                    log(uploadLog, `✓ ${file.name}`, 'ok');
+                } else {
+                    failed++;
+                    log(uploadLog, `✗ ${file.name}: ${result.error}`, 'err');
+                }
+            } catch(e) {
+                failed++;
+                log(uploadLog, `✗ ${file.name}: ${e.message}`, 'err');
+            }
+        }
+
+        // Update manifest if new film
+        if (isNewFilm && success > 0) {
+            progressText.textContent = 'Updating manifest...';
+            log(uploadLog, 'Updating manifest.js...', '');
+            try {
+                const result = await addFilmToManifest(film, sorted.map(f => f.name));
+                if (result.ok) {
+                    log(uploadLog, '✓ manifest.js updated', 'ok');
+                } else {
+                    log(uploadLog, '✗ manifest.js: ' + result.error, 'err');
+                }
+            } catch(e) {
+                log(uploadLog, '✗ manifest.js: ' + e.message, 'err');
+            }
+        }
+
+        // Done
+        progressFill.style.width = '100%';
+        progressText.textContent = `Done: ${success} uploaded, ${failed} failed`;
+
+        if (success > 0) {
+            showMsg('main-msg', `✓ ${success} image(s) uploaded. Vercel will auto-deploy in ~1 min.`, 'success');
+            // Refresh film list
+            if (isNewFilm) {
+                // Reload the page to pick up new manifest
+                setTimeout(() => location.reload(), 2000);
+            } else {
+                clearPreview();
+            }
+        }
+
+        if (failed > 0) {
+            showMsg('main-msg', `⚠ ${success} ok, ${failed} failed. Check log.`, 'error');
+        }
+
+        $('upload-btn').disabled = false;
+        updateUploadBtn();
+    }
+
+    async function uploadImage(film, file) {
+        const encoded = encodeURIComponent(film);
+        const encodedFile = encodeURIComponent(file.name);
+        const path = `reference/film/${encoded}/${encodedFile}`;
+
+        const base64 = await fileToBase64(file);
+        // Remove data:... prefix if present
+        const content = base64.replace(/^data:[^;]+;base64,/, '');
+
+        const body = {
+            message: `📱 admin: upload ${file.name} to ${film}`,
+            content: content,
+            branch: 'main'
+        };
+
+        // Check if file already exists (to get SHA)
+        try {
+            const checkRes = await ghFetch(`GET /contents/${path}?ref=main`);
+            if (checkRes.ok) {
+                const checkData = await checkRes.json();
+                body.sha = checkData.sha;
+                body.message = `📱 admin: update ${file.name}`;
+            }
+        } catch(e) { /* file doesn't exist, that's fine */ }
+
+        const res = await ghFetch(`PUT /contents/${path}`, {
+            method: 'PUT',
+            body: JSON.stringify(body)
+        });
+
+        if (res.ok) return { ok:true };
+        const errData = await res.json().catch(() => ({}));
+        return { ok:false, error: errData.message || res.statusText };
+    }
+
+    async function addFilmToManifest(film, imageNames) {
+        // 1. Get current manifest
+        const getRes = await ghFetch(`GET /contents/manifest.js?ref=main`);
+        if (!getRes.ok) {
+            const err = await getRes.json().catch(() => ({}));
+            return { ok:false, error: 'Cannot read manifest: ' + (err.message || getRes.statusText) };
+        }
+        const getData = await getRes.json();
+        const sha = getData.sha;
+
+        // 2. Decode and parse
+        const raw = atob(getData.content.replace(/\s/g, ''));
+        // Extract the JSON object from the JS file
+        const jsonMatch = raw.match(/window\.__MANIFEST__\s*=\s*({[\s\S]*?});/);
+        if (!jsonMatch) return { ok:false, error: 'Cannot parse manifest.js' };
+
+        let manifest;
+        try {
+            manifest = JSON.parse(jsonMatch[1]);
+        } catch(e) {
+            return { ok:false, error: 'Invalid JSON in manifest.js: ' + e.message };
+        }
+
+        // 3. Add new film entry
+        if (!manifest.projects) manifest.projects = {};
+        const today = new Date().toISOString().slice(0,10).replace(/-/g,'/');
+        manifest.projects[film] = {
+            images: imageNames,
+            hasDescription: false,
+            lastEdit: today
+        };
+
+        // 4. Rebuild manifest.js content
+        const newContent = '// ============================================================\n' +
+            '//  MANIFEST — Single source of truth for all film projects\n' +
+            '//  Add new movies here. Each key = folder name under reference/film/\n' +
+            '//  Both index.html and project_detail.html read from this file.\n' +
+            '//  lastEdit:  manual date string, update when you add/change images\n' +
+            '// ============================================================\n' +
+            'window.__MANIFEST__ = ' + JSON.stringify(manifest, null, 2) + ';\n';
+
+        // 5. PUT back
+        const putRes = await ghFetch(`PUT /contents/manifest.js`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                message: `📱 admin: add film "${film}" to manifest`,
+                content: btoa(unescape(encodeURIComponent(newContent))),
+                sha: sha,
+                branch: 'main'
+            })
+        });
+
+        if (putRes.ok) return { ok:true };
+        const errData = await putRes.json().catch(() => ({}));
+        return { ok:false, error: errData.message || putRes.statusText };
+    }
+
+    // ================================================================
+    //  GITHUB API HELPERS
+    // ================================================================
+    async function ghFetch(endpoint, opts = {}) {
+        const [method, path] = endpoint.split(' ', 2);
+        const url = `${API_BASE}${path}`;
+        const headers = {
+            'Authorization': `token ${githubToken}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+        };
+        return fetch(url, { method, headers, ...opts });
+    }
+
+    function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // ================================================================
+    //  UTILITY
+    // ================================================================
+    function showMsg(id, text, cls) {
+        const el = $(id);
+        el.textContent = text;
+        el.className = 'msg ' + (cls || '');
+    }
+
+    function log(container, text, cls) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        if (cls) div.className = cls;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "functions": {
+    "api/auth.js": {
+      "memory": 128,
+      "maxDuration": 10
+    }
+  },
+  "env": {
+    "ADMIN_PASSWORD": "@admin-password-placeholder"
+  },
+  "buildCommand": "",
+  "outputDirectory": ".",
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/api/auth", "destination": "/api/auth" }
+  ]
+}
