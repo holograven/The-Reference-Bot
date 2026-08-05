@@ -213,7 +213,6 @@
         <button id="upload-btn" disabled>Upload</button>
 
         <button class="small danger" id="logout-btn" style="margin-top:40px;">Logout</button>
-        <button class="small" id="change-token-btn">Change GitHub Token</button>
         <a class="back-link" href="index.html">← Back to site</a>
     </div>
 </div>
@@ -267,7 +266,6 @@
         $('image-input').addEventListener('change', onImagesPicked);
         $('upload-btn').addEventListener('click', doUpload);
         $('logout-btn').addEventListener('click', doLogout);
-        $('change-token-btn').addEventListener('click', showTokenSetup);
 
         // Populate film list
         populateFilms();
@@ -298,6 +296,8 @@
     function showMain() {
         showScreen(screenMain);
         populateFilms();
+        // Trigger initial state: "New Film" selected by default → show name input
+        onFilmSelect();
         updateUploadBtn();
     }
 
