@@ -28,6 +28,10 @@
     if (!sidebar || !overlay || !toggle) return;
 
     // ---- Sidebar toggle ----
+    function isMobile() {
+        return window.innerWidth <= 768;
+    }
+
     function openSidebar() {
         sidebar.classList.add('open');
         overlay.classList.add('open');
@@ -43,7 +47,11 @@
 
     toggle.addEventListener('click', function(e) {
         e.preventDefault();
-        sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+        if (isMobile()) {
+            window.location.href = 'admin.html';
+        } else {
+            sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+        }
     });
 
     overlay.addEventListener('click', closeSidebar);
