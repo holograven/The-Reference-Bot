@@ -314,13 +314,136 @@
                 min-height: 44px;
             }
         }
+
+        /* ================================================================
+           ADMIN SIDEBAR
+           ================================================================ */
+        .admin-overlay {
+            position: fixed; inset: 0; z-index: 2000;
+            background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .admin-overlay.open { opacity: 1; pointer-events: auto; }
+
+        .admin-sidebar {
+            position: fixed; top: 0; right: 0; width: 360px; max-width: 92vw;
+            height: 100vh; height: 100dvh; z-index: 2100;
+            background: #0a0a0a; border-left: 1px solid rgba(255,255,255,0.08);
+            transform: translateX(100%); transition: transform 0.3s ease;
+            display: flex; flex-direction: column; overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .admin-sidebar.open { transform: translateX(0); }
+
+        .admin-sidebar-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 18px; border-bottom: 1px solid rgba(255,255,255,0.08);
+            position: sticky; top: 0; background: #0a0a0a; z-index: 2;
+        }
+        .admin-sidebar-header h2 {
+            font-size: 14px; font-weight: 700; letter-spacing: 3px;
+            font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; text-transform: uppercase;
+        }
+        .admin-sidebar-close {
+            background: none; border: none; color: rgba(255,255,255,0.4);
+            font-size: 20px; cursor: pointer; padding: 4px 8px; line-height: 1;
+        }
+        .admin-sidebar-close:hover { color: #fff; }
+
+        .admin-body { flex:1; padding: 20px 18px; overflow-y: auto; }
+
+        /* Admin screens inside sidebar */
+        .admin-screen { display: none; }
+        .admin-screen.active { display: block; }
+
+        .admin-body label {
+            display: block; font-size: 10px; text-transform: uppercase;
+            letter-spacing: 2px; color: #888; margin: 14px 0 6px;
+        }
+        .admin-body label:first-child { margin-top: 0; }
+
+        .admin-body input, .admin-body select {
+            width: 100%; padding: 10px 12px; font-size: 15px;
+            background: transparent; border: 1px solid rgba(255,255,255,0.12);
+            color: #fff; font-family: inherit; outline: none; border-radius: 0;
+            -webkit-appearance: none; transition: border-color 0.2s;
+        }
+        .admin-body input:focus, .admin-body select:focus {
+            border-color: rgba(255,255,255,0.35);
+        }
+        .admin-body select { cursor: pointer; }
+        .admin-body select option { background: #1a1a1a; color: #fff; }
+
+        .admin-body .film-row { display: flex; gap: 6px; }
+        .admin-body .film-row select { flex: 1; }
+
+        .admin-btn {
+            display: block; width: 100%; padding: 11px; margin-top: 16px;
+            font-size: 12px; font-weight: 700; letter-spacing: 2px;
+            text-transform: uppercase; cursor: pointer;
+            background: transparent; color: #fff;
+            border: 1px solid rgba(255,255,255,0.2); font-family: inherit;
+            transition: all 0.25s;
+        }
+        .admin-btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.4); }
+        .admin-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .admin-btn.small { padding: 8px; font-size: 10px; letter-spacing: 1px; margin-top: 8px; }
+        .admin-btn.danger { border-color: rgba(255,80,80,0.3); color: #ff5555; }
+
+        .admin-body .msg {
+            padding: 10px 12px; margin-top: 10px; font-size: 11px;
+            border-left: 2px solid; display: none; letter-spacing: 0.5px;
+        }
+        .admin-body .msg.error { color:#ff5555; border-color:#ff5555; background:rgba(255,80,80,0.06); display:block; }
+        .admin-body .msg.success { color:#4f4; border-color:#4f4; background:rgba(255,80,80,0.06); display:block; }
+
+        .admin-body .info-box {
+            padding: 10px 12px; margin-top: 12px; font-size: 10px; color: #888;
+            border: 1px solid rgba(255,255,255,0.08); line-height: 1.7;
+        }
+        .admin-body .info-box a { color: #aaa; }
+
+        .admin-body .preview-grid {
+            display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin-top: 12px;
+        }
+        .admin-body .preview-item {
+            position: relative; aspect-ratio: 1; overflow: hidden;
+            background: #111; border: 1px solid rgba(255,255,255,0.06);
+        }
+        .admin-body .preview-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .admin-body .preview-item .remove-btn {
+            position: absolute; top: 3px; right: 3px;
+            width: 20px; height: 20px; border-radius: 50%;
+            background: rgba(0,0,0,0.7); color: #ff5555; border: none;
+            font-size: 12px; cursor: pointer; line-height: 1;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .admin-body .progress-wrap { margin-top: 14px; display: none; }
+        .admin-body .progress-bar {
+            width: 100%; height: 3px; background: rgba(255,255,255,0.08); overflow: hidden;
+        }
+        .admin-body .progress-bar .fill {
+            height: 100%; background: #fff; width: 0%; transition: width 0.3s;
+        }
+        .admin-body .progress-text { font-size: 10px; color: #888; margin-top: 4px; }
+        .admin-body .upload-log {
+            margin-top: 10px; max-height: 120px; overflow-y: auto;
+            font-size: 10px; color: #666; line-height: 1.7;
+        }
+        .admin-body .upload-log .ok { color: #4f4; }
+        .admin-body .upload-log .err { color: #f44; }
+
+        @media (max-width: 480px) {
+            .admin-sidebar { width: 100%; max-width: 100%; }
+        }
     </style>
 </head>
 <body>
 
     <header>
         <h1>The Reference Bot</h1>
-        <a href="admin.html" class="admin-plus" title="Admin">+</a>
+        <a href="admin.html" class="admin-plus" title="Admin" id="admin-toggle">+</a>
     </header>
 
     <div class="container" id="project-container">
@@ -583,5 +706,65 @@
             }
         })();
     </script>
+
+    <!-- ================================================================
+       ADMIN SIDEBAR
+       ================================================================ -->
+    <div class="admin-overlay" id="admin-overlay"></div>
+    <div class="admin-sidebar" id="admin-sidebar">
+        <div class="admin-sidebar-header">
+            <h2>Upload</h2>
+            <button class="admin-sidebar-close" id="admin-sidebar-close">&times;</button>
+        </div>
+        <div class="admin-body">
+
+            <!-- Screen: Login -->
+            <div class="admin-screen active" id="as-login">
+                <label>Password</label>
+                <input type="password" id="as-password" placeholder="Enter password" autocomplete="off">
+                <div class="msg" id="as-login-msg"></div>
+                <button class="admin-btn" id="as-login-btn">Unlock</button>
+            </div>
+
+            <!-- Screen: Token Setup -->
+            <div class="admin-screen" id="as-token">
+                <label>GitHub Token</label>
+                <input type="password" id="as-token-input" placeholder="ghp_xxxxxxxx" autocomplete="off">
+                <div class="info-box">Create at <a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a> — scope: <b>repo</b></div>
+                <div class="msg" id="as-token-msg"></div>
+                <button class="admin-btn" id="as-token-save">Save Token</button>
+            </div>
+
+            <!-- Screen: Upload -->
+            <div class="admin-screen" id="as-upload">
+                <label>Film</label>
+                <div class="film-row">
+                    <select id="as-film-select">
+                        <option value="__new__">+ New Film...</option>
+                    </select>
+                </div>
+                <input type="text" id="as-new-film-name" placeholder="Film name..." style="margin-top:8px;">
+
+                <label>Images</label>
+                <input type="file" id="as-image-input" accept="image/*" multiple style="display:none;">
+                <button class="admin-btn small" id="as-pick-btn">Select Images</button>
+                <div class="preview-grid" id="as-preview"></div>
+
+                <div class="progress-wrap" id="as-progress-wrap">
+                    <div class="progress-bar"><div class="fill" id="as-progress-fill"></div></div>
+                    <div class="progress-text" id="as-progress-text"></div>
+                    <div class="upload-log" id="as-upload-log"></div>
+                </div>
+
+                <div class="msg" id="as-main-msg"></div>
+                <button class="admin-btn" id="as-upload-btn" disabled>Upload</button>
+
+                <button class="admin-btn small danger" id="as-logout-btn" style="margin-top:30px;">Logout</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="admin-sidebar.js"></script>
 </body>
 </html>
