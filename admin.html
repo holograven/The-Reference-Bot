@@ -581,7 +581,8 @@
         const sha = getData.sha;
 
         // 2. Decode and parse
-        const raw = atob(getData.content.replace(/\s/g, ''));
+        const bytes = Uint8Array.from(atob(getData.content), c => c.charCodeAt(0));
+        const raw = new TextDecoder('utf-8').decode(bytes);
         // Extract the JSON object from the JS file
         const jsonMatch = raw.match(/window\.__MANIFEST__\s*=\s*({[\s\S]*?});/);
         if (!jsonMatch) return { ok:false, error: 'Cannot parse manifest.js' };

@@ -341,7 +341,8 @@
             return r.json();
         }).then(function(data) {
             var sha = data.sha;
-            var raw = atob(data.content.replace(/\s/g, ''));
+            var bytes = Uint8Array.from(atob(data.content), function(c) { return c.charCodeAt(0); });
+            var raw = new TextDecoder('utf-8').decode(bytes);
             var m = raw.match(/window\.__MANIFEST__\s*=\s*({[\s\S]*?});/);
             if (!m) throw new Error('Cannot parse manifest');
             var manifest = JSON.parse(m[1]);
