@@ -435,7 +435,8 @@
         .admin-body .upload-log .err { color: #f44; }
 
         @media (max-width: 480px) {
-            .admin-sidebar { width: 100%; max-width: 100%; }
+            .admin-sidebar { width: 100vw; max-width: 100vw; border-left: none; }
+            .admin-overlay.open { opacity: 0; } /* sidebar fills screen, no overlay needed */
         }
     </style>
 </head>
