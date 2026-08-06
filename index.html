@@ -131,12 +131,39 @@
             animation-play-state: paused;
         }
 
+        /* === Image item wrapper (blur-up placeholder) === */
+        .image-item-wrapper {
+            height: 100%;
+            width: auto;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+            background: #111;
+            flex-shrink: 0;
+        }
+
+        .image-item-wrapper::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: inherit;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+
         .image-item {
             height: 100%;
             width: auto;
-            margin-right: 0;
             display: block;
             cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            filter: blur(8px);
+        }
+
+        .image-item.loaded {
+            opacity: 1;
+            filter: blur(0);
         }
 
         @keyframes marquee {
@@ -571,18 +598,34 @@
                 const total = images.length;
                 const allImages = [...images, ...images];
                 allImages.forEach((file, i) => {
+                    const origIndex = i % total;
+
+                    // Wrapper serves as lightweight placeholder
+                    const wrapper = document.createElement('span');
+                    wrapper.className = 'image-item-wrapper';
+
                     const img = document.createElement('img');
                     img.className = 'image-item';
-                    img.src = basePath + encodeURIComponent(file).replace(/\.(jpe?g|png)$/i, '.webp');
+                    img.src = basePath + encodeURIComponent(file);
                     img.alt = file;
                     img.loading = 'lazy';
                     img.decoding = 'async';
-                    const origIndex = i % total;
+
+                    // Fade in when loaded (handles cached images too)
+                    if (img.complete && img.naturalWidth > 0) {
+                        img.classList.add('loaded');
+                    } else {
+                        img.onload = () => img.classList.add('loaded');
+                        img.onerror = () => { img.style.display = 'none'; };
+                    }
+
                     img.onclick = (e) => {
                         e.stopPropagation();
                         location.href = 'project_detail.html?project=' + encoded + '&img=' + origIndex;
                     };
-                    content.appendChild(img);
+
+                    wrapper.appendChild(img);
+                    content.appendChild(wrapper);
                 });
 
                 wrapper.appendChild(content);
