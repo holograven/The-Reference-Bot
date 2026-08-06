@@ -97,6 +97,30 @@ window.__MANIFEST__ = {
       ],
       "hasDescription": false,
       "lastEdit": "2026/08/05"
+    },
+    "Doctor Zhivago": {
+      "images": [
+        "Screenshot 2026-08-06 174610.png",
+        "Screenshot 2026-08-06 174659.png",
+        "Screenshot 2026-08-06 175134.png",
+        "Screenshot 2026-08-06 175139.png",
+        "Screenshot 2026-08-06 175211.png",
+        "Screenshot 2026-08-06 175314.png",
+        "Screenshot 2026-08-06 175740.png",
+        "Screenshot 2026-08-06 175845.png",
+        "Screenshot 2026-08-06 180041.png",
+        "Screenshot 2026-08-06 180049.png",
+        "Screenshot 2026-08-06 180113.png",
+        "Screenshot 2026-08-06 180151.png",
+        "Screenshot 2026-08-06 180701.png",
+        "Screenshot 2026-08-06 180711.png",
+        "Screenshot 2026-08-06 180818.png",
+        "Screenshot 2026-08-06 180856.png",
+        "Screenshot 2026-08-06 180953.png",
+        "Screenshot 2026-08-06 181152.png"
+      ],
+      "hasDescription": false,
+      "lastEdit": "2026/08/06"
     }
   }
 };
