@@ -121,6 +121,23 @@ window.__MANIFEST__ = {
       ],
       "hasDescription": false,
       "lastEdit": "2026/08/06"
+    },
+    "L'Homme a la valise": {
+      "images": [
+        "Screenshot 2026-08-07 133418.png",
+        "Screenshot 2026-08-07 134104.png",
+        "Screenshot 2026-08-07 134604.png",
+        "Screenshot 2026-08-07 134818.png",
+        "Screenshot 2026-08-07 134956.png",
+        "Screenshot 2026-08-07 135213.png",
+        "Screenshot 2026-08-07 140056.png",
+        "Screenshot 2026-08-07 140408.png",
+        "Screenshot 2026-08-07 141213.png",
+        "Screenshot 2026-08-07 141545.png",
+        "Screenshot 2026-08-07 141916.png"
+      ],
+      "hasDescription": false,
+      "lastEdit": "2026/08/07"
     }
   }
 };
