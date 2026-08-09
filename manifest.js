@@ -138,6 +138,22 @@ window.__MANIFEST__ = {
       ],
       "hasDescription": false,
       "lastEdit": "2026/08/07"
+    },
+    "Asphalte": {
+      "images": [
+        "Screenshot 2026-08-09 232048.png",
+        "Screenshot 2026-08-09 232357.png",
+        "Screenshot 2026-08-09 232506.png",
+        "Screenshot 2026-08-09 232837.png",
+        "Screenshot 2026-08-09 234211.png",
+        "Screenshot 2026-08-09 235404.png",
+        "Screenshot 2026-08-09 235432.png",
+        "Screenshot 2026-08-10 003042.png",
+        "Screenshot 2026-08-10 004752.png",
+        "Screenshot 2026-08-10 005054.png"
+      ],
+      "hasDescription": false,
+      "lastEdit": "2026/08/09"
     }
   }
 };
