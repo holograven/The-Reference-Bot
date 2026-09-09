@@ -154,6 +154,17 @@ window.__MANIFEST__ = {
       ],
       "hasDescription": false,
       "lastEdit": "2026/08/09"
+    },
+    "薄荷糖": {
+      "images": [
+        "Screenshot 2026-09-10 011625.png",
+        "Screenshot 2026-09-10 012436.png",
+        "Screenshot 2026-09-10 013211.png",
+        "Screenshot 2026-09-10 013551.png",
+        "Screenshot 2026-09-10 014008.png"
+      ],
+      "hasDescription": false,
+      "lastEdit": "2026/09/09"
     }
   }
 };
